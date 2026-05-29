@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const categoryRoutes = require("./routes/category.routes");
 const authRoutes = require("./routes/auth.routes");
-
+const itemRoutes = require("./routes/item.routes");
 const app = express();
 
 app.use(cors());
@@ -18,5 +18,6 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/items", itemRoutes);
 
 module.exports = app;
