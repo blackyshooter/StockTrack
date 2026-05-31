@@ -9,9 +9,25 @@ jobs:
   deploy:
     runs-on: self-hosted
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+      PORT: 3001
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Crear .env del backend
+        run: |
+          cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/server
+          cat > .env <<EOF
+          PORT=3001
+          DATABASE_URL="${DATABASE_URL}"
+          JWT_SECRET="${JWT_SECRET}"
+          JWT_EXPIRES_IN="${JWT_EXPIRES_IN}"
+          EOF
 
       - name: Instalar dependencias del backend
         run: |
@@ -21,6 +37,13 @@ jobs:
           npx prisma migrate deploy
           pm2 restart stocktrack-api || pm2 start src/server.js --name stocktrack-api
           pm2 save
+
+      - name: Crear .env.production del frontend
+        run: |
+          cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/cliente
+          cat > .env.production <<EOF
+          VITE_API_URL=/api
+          EOF
 
       - name: Compilar frontend
         run: |
