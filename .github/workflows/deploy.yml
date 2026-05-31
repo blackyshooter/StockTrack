@@ -9,12 +9,6 @@ jobs:
   deploy:
     runs-on: self-hosted
 
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
-      PORT: 3001
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,10 +18,21 @@ jobs:
           cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/server
           cat > .env <<EOF
           PORT=3001
-          DATABASE_URL="${DATABASE_URL}"
-          JWT_SECRET="${JWT_SECRET}"
-          JWT_EXPIRES_IN="${JWT_EXPIRES_IN}"
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
           EOF
+
+      - name: Verificar variables sin mostrar secretos
+        run: |
+          cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/server
+          if grep -q "DATABASE_URL=postgresql://" .env; then
+            echo "DATABASE_URL cargada correctamente"
+          else
+            echo "DATABASE_URL no fue cargada"
+            cat .env | sed 's/DATABASE_URL=.*/DATABASE_URL=***OCULTA***/'
+            exit 1
+          fi
 
       - name: Instalar dependencias del backend
         run: |
