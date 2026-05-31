@@ -10,14 +10,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Actualizar repositorio en la VM
-        run: |
-          cd ~/proyecto_final_idt
-          git pull origin main
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Instalar dependencias del backend
         run: |
-          cd ~/proyecto_final_idt/server
+          cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/server
           npm install
           npx prisma generate
           npx prisma migrate deploy
@@ -26,12 +24,13 @@ jobs:
 
       - name: Compilar frontend
         run: |
-          cd ~/proyecto_final_idt/cliente
+          cd /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/cliente
           npm install
           npm run build
 
       - name: Publicar frontend en Nginx
         run: |
+          sudo mkdir -p /var/www/stocktrack
           sudo rm -rf /var/www/stocktrack/*
-          sudo cp -r ~/proyecto_final_idt/cliente/dist/* /var/www/stocktrack/
+          sudo cp -r /home/ubuntu/actions-runner/_work/proyecto_final_idt/proyecto_final_idt/cliente/dist/* /var/www/stocktrack/
           sudo systemctl restart nginx
